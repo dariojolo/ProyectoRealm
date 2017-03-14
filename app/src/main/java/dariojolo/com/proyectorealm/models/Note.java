@@ -2,6 +2,7 @@ package dariojolo.com.proyectorealm.models;
 
 import java.util.Date;
 
+import dariojolo.com.proyectorealm.app.MyApplication;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
@@ -21,7 +22,7 @@ public class Note extends RealmObject {
 
     public Note(){}
     public Note(String description){
-        this.id = 0;
+        this.id = MyApplication.NoteID.incrementAndGet();
         this.description = description;
         this.createAt = new Date();
     }
