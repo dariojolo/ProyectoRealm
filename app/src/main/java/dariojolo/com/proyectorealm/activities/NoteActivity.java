@@ -16,9 +16,10 @@ import dariojolo.com.proyectorealm.adapters.NoteAdapter;
 import dariojolo.com.proyectorealm.models.Board;
 import dariojolo.com.proyectorealm.models.Note;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmList;
 
-public class NoteActivity extends AppCompatActivity {
+public class NoteActivity extends AppCompatActivity implements RealmChangeListener<Board>{
 
     private ListView listView;
     private FloatingActionButton fab;
@@ -44,6 +45,7 @@ public class NoteActivity extends AppCompatActivity {
             boardId = getIntent().getExtras().getInt("id");
 
             board = realm.where(Board.class).equalTo("id", boardId).findFirst();
+            board.addChangeListener(this);
             notes = board.getNotes();
 
             this.setTitle(board.getTitle());
@@ -58,7 +60,7 @@ public class NoteActivity extends AppCompatActivity {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showAlertForCreatingNote("title", "message");
+                    showAlertForCreatingNote("Add new note", "Type a note for "+ board.getTitle() + ".");
                 }
             });
 
@@ -96,7 +98,16 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void createNewNote(String note) {
-
+            realm.beginTransaction();
+                Note _note = new Note(note);
+                realm.copyToRealm(_note);
+                board.getNotes().add(_note);
+            realm.commitTransaction();
     }
 
+
+    @Override
+    public void onChange(Board element) {
+        adapter.notifyDataSetChanged();
+    }
 }
